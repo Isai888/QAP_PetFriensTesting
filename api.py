@@ -106,3 +106,41 @@ class PetFriends:
         except json.decoder.JSONDecodeError:
             result = res.text
         return status, result
+
+    def create_pet_simple(
+            self, auth_key: json, name: str, animal_type: str, age: str) -> json:
+        """Метод создаёт на сервере данные о добавляемом питомце и возвращает статус
+                запроса на сервер и результат в формате JSON с данными добавленного питомца"""
+        data = MultipartEncoder(
+            fields={
+                'name': name,
+                'animal_type': animal_type,
+                'age': age
+            })
+        headers = {'auth_key': auth_key['key'], 'Content-Type': data.content_type}
+
+        res = requests.post(self.base_url + 'api/create_pet_simple', headers=headers, data=data)
+        status = res.status_code
+        result = ""
+        try:
+            result = res.json()
+        except json.decoder.JSONDecodeError:
+            result = res.text
+        print(result)
+        return status, result
+
+    def set_photo_by_pet_id(self, auth_key: json, pet_id: str, pet_photo: str) -> json:
+        '''Метод находит по id уже созданного питомца или создает нового и устанавливает новое фото для него'''
+
+        data = MultipartEncoder(fields={'pet_photo': (pet_photo, open(pet_photo, 'rb'), 'image/jpeg')})
+        headers = {'auth_key': auth_key['key'], 'Content-Type': data.content_type}
+
+        res = requests.post(self.base_url + 'api/pets/set_photo/' + pet_id, headers=headers, data=data)
+        status = res.status_code
+        result = ""
+        try:
+            result = res.json()
+        except json.decoder.JSONDecodeError:
+            result = res.text
+        print(result)
+        return status, result
